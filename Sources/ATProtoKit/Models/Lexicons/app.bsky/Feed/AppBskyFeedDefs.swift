@@ -282,6 +282,15 @@ extension AppBskyLexicon.Feed {
 
         /// The context of the thread view. Optional.
         public let threadContext: ThreadContextDefinition?
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.post = try container.decode(PostViewDefinition.self, forKey: .post)
+            self.parent = try container.decodeIfPresent(ATUnion.ThreadViewPostParentUnion.self, forKey: .parent)
+            self.replies = try container.decodeIfPresent([ATUnion.ThreadViewPostRepliesUnion].self, forKey: .replies)
+            self.threadContext = try? container.decodeIfPresent(ThreadContextDefinition.self, forKey: .threadContext) ?? nil
+        }
     }
 
     /// A definition model for a post that may not have been found.
