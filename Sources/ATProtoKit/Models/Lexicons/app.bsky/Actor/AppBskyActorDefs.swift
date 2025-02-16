@@ -590,7 +590,7 @@ extension AppBskyLexicon.Actor {
         enum CodingKeys: String, CodingKey {
             case type = "$type"
             case feedID = "id"
-            case feedType
+            case feedType = "type"
             case value
             case isPinned = "pinned"
         }
