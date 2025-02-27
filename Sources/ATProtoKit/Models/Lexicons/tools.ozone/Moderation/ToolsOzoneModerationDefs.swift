@@ -564,7 +564,8 @@ extension ToolsOzoneLexicon.Moderation {
 
     /// A definition model for a comment event.
     ///
-    /// - Note: According to the AT Protocol specifications: "Add a comment to a subject."
+    /// - Note: According to the AT Protocol specifications: "Add a comment to a subject. An empty
+    /// comment will clear any previously set sticky comment."
     ///
     /// - SeeAlso: This is based on the [`tools.ozone.moderation.defs`][github] lexicon.
     ///
@@ -1707,5 +1708,64 @@ extension ToolsOzoneLexicon.Moderation {
             /// Indicates there is no known state for this record host.
             case unknown
         }
+    }
+
+    /// A definition model for the reporter's statistics.
+    ///
+    /// - SeeAlso: This is based on the [`tools.ozone.moderation.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/admin/defs.json
+    public struct ReporterStatsDefinition: Sendable, Codable {
+
+        /// The decentralized identifier (DID) of the reporter.
+        public let did: String
+
+        /// The number of reports made by the user on accounts.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of reports made
+        /// by the user on accounts."
+        public let accountReportCount: Int
+
+        /// The number of reports made by the user.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of reports made
+        /// by the user on records."
+        public let recordReportCount: Int
+
+        /// The number of accounts reported by the user.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of accounts
+        /// reported by the user."
+        public let reportedAccountCount: Int
+
+        /// The number of records reported by the user.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of records
+        /// reported by the user."
+        public let reportedRecordCount: Int
+
+        /// The number of accounts taken down due to user reports.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of accounts
+        /// taken down as a result of the user's reports."
+        public let takendownAccountCount: Int
+
+        /// The number of records taken down due to user reports.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of records
+        /// taken down as a result of the user's reports."
+        public let takendownRecordCount: Int
+
+        /// The number of accounts labeled by the user’s reports.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of accounts
+        /// labeled as a result of the user's reports."
+        public let labeledAccountCount: Int
+
+        /// The number of records labeled based on user reports.
+        ///
+        /// - Note: According to the AT Protocol specifications: "The total number of records
+        /// labeled as a result of the user's reports."
+        public let labeledRecordCount: Int
     }
 }
