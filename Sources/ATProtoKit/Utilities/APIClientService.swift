@@ -196,8 +196,8 @@ public actor APIClientService {
         let data = try await self.performRequest(request, withEncodingBody: body)
 
         // DEBUG (PAT)
-        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
-        print("response data:\n\(String(data: data, encoding: .utf8) ?? "Unable to decode data")\n\n")
+//        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
+//        print("response data:\n\(String(data: data, encoding: .utf8) ?? "Unable to decode data")\n\n")
         // ===========
         
         let decodedData = try JSONDecoder().decode(T.self, from: data)
