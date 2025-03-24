@@ -586,6 +586,14 @@ extension AppBskyLexicon.Actor {
             /// user account's timeline.
             case timeline
         }
+        
+        @_documentation(visibility: private)
+        public init(feedID: String, feedType: FeedType, value: String, isPinned: Bool) {
+            self.feedID = feedID
+            self.feedType = feedType
+            self.value = value
+            self.isPinned = isPinned
+        }
 
         enum CodingKeys: String, CodingKey {
             case type = "$type"
@@ -611,6 +619,7 @@ extension AppBskyLexicon.Actor {
         /// An array of saved feed generators.
         public let items: [SavedFeed]
 
+        @_documentation(visibility: private)
         public init(items: [SavedFeed]) {
             self.items = items
         }
