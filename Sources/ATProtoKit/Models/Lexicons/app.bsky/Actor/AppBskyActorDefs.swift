@@ -692,8 +692,8 @@ extension AppBskyLexicon.Actor {
         @_documentation(visibility: private)
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-
-            try container.encodeIfPresent(self.birthDate, forKey: .birthDate)
+            try container.encode(self.type, forKey: .type)
+            try container.encode(self.birthDate, forKey: .birthDate)
         }
 
         enum CodingKeys: String, CodingKey {
