@@ -194,10 +194,10 @@ public actor APIClientService {
     /// - Returns: An instance of the specified `Decodable` type.
     public func sendRequest<T: Decodable>(_ request: URLRequest, withEncodingBody body: (Encodable & Sendable)? = nil, decodeTo: T.Type) async throws -> T {
         // DEBUG (PAT)
-        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
-        if let requestData = try? body?.toJsonData() {
-            print("request data:\n\(String(data: requestData, encoding: .utf8) ?? "Unable to decode data")\n\n")
-        }
+//        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
+//        if let requestData = try? body?.toJsonData() {
+//            print("request data:\n\(String(data: requestData, encoding: .utf8) ?? "Unable to decode data")\n\n")
+//        }
         // ===========
 
         let data = try await self.performRequest(request, withEncodingBody: body)
@@ -225,7 +225,20 @@ public actor APIClientService {
     ///   - body: An optional `Encodable` body to be encoded and attached to the request.
     /// - Returns: A `Data` object that contains the blob.
     public func sendRequest(_ request: URLRequest, withEncodingBody body: (Encodable & Sendable)? = nil) async throws -> Data {
+        // DEBUG (PAT)
+        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
+        if let requestData = try? body?.toJsonData() {
+            print("request data:\n\(String(data: requestData, encoding: .utf8) ?? "Unable to decode data")\n\n")
+        }
+        // ===========
+
         let data = try await self.performRequest(request, withEncodingBody: body)
+
+        // DEBUG (PAT)
+//        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
+        print("response data:\n\(String(data: data, encoding: .utf8) ?? "Unable to decode data")\n\n")
+        // ===========
+
         return data
     }
 
