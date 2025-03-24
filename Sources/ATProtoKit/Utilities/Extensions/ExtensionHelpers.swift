@@ -120,7 +120,9 @@ extension Encodable {
     ///
     /// - Returns: A JSON object.
     public func toJsonData() throws -> Data? {
-        return try JSONEncoder().encode(self)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(self)
     }
 }
 
