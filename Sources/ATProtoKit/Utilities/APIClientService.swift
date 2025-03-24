@@ -193,6 +193,13 @@ public actor APIClientService {
     ///   - decodeTo: The type to decode the response into.
     /// - Returns: An instance of the specified `Decodable` type.
     public func sendRequest<T: Decodable>(_ request: URLRequest, withEncodingBody body: (Encodable & Sendable)? = nil, decodeTo: T.Type) async throws -> T {
+        // DEBUG (PAT)
+        print("url: \(request.url?.absoluteString ?? "Unable tp decode URL")")
+        if let requestData = try? body?.toJsonData() {
+            print("request data:\n\(String(data: requestData, encoding: .utf8) ?? "Unable to decode data")\n\n")
+        }
+        // ===========
+
         let data = try await self.performRequest(request, withEncodingBody: body)
 
         // DEBUG (PAT)

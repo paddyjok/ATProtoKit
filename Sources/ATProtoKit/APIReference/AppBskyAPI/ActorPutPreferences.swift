@@ -43,8 +43,6 @@ extension ATProtoKit {
             let request = await APIClientService.createRequest(
                 forRequest: requestURL,
                 andMethod: .post,
-                acceptValue: nil,
-                contentTypeValue: nil,
                 authorizationValue: "Bearer \(accessToken)"
             )
 
