@@ -29,7 +29,7 @@ extension ATProtoBluesky {
         }
         
         let generatorRecord = AppBskyLexicon.Feed.GeneratorRecord(
-            feedDID: session.sessionDID,
+            feedDID: serviceDID,
             displayName: displayName,
             description: description,
             descriptionFacets: nil,

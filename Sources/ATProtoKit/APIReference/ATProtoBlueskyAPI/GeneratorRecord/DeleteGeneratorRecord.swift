@@ -9,4 +9,8 @@ import Foundation
 
 extension ATProtoBluesky {
 
+    public func deleteGeneratorRecord(_ record: RecordIdentifier) async throws {
+        return try await deleteActionRecord(record)
+    }
+    
 }
