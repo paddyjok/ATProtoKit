@@ -94,7 +94,7 @@ extension AppBskyLexicon.Feed {
             var container = encoder.container(keyedBy: CodingKeys.self)
 
             try container.encode(self.feedDID, forKey: .feedDID)
-            try container.truncatedEncode(self.displayName, forKey: .description, upToCharacterLength: 24)
+            try container.truncatedEncode(self.displayName, forKey: .displayName, upToCharacterLength: 24)
             try container.truncatedEncodeIfPresent(self.description, forKey: .description, upToCharacterLength: 300)
             try container.encodeIfPresent(self.descriptionFacets, forKey: .descriptionFacets)
             try container.encodeIfPresent(self.avatarImageBlob, forKey: .avatarImageBlob)
