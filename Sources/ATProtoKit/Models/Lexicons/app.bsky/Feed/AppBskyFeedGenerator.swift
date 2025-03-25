@@ -64,6 +64,18 @@ extension AppBskyLexicon.Feed {
         /// The date and time the feed was created.
         public let createdAt: Date
 
+        public init(feedDID: String, displayName: String, description: String?, descriptionFacets:  [AppBskyLexicon.RichText.Facet]?, avatarImageBlob: ComAtprotoLexicon.Repository.BlobContainer??, canAcceptInteractions: Bool?, labels: ATUnion.GeneratorLabelsUnion?, contentMode: ContentMode?, createdAt: Date) {
+            self.feedDID = feedDID
+            self.displayName = displayName
+            self.description = description
+            self.descriptionFacets = descriptionFacets
+            self.avatarImageBlob = avatarImageBlob
+            self.canAcceptInteractions = canAcceptInteractions
+            self.labels = labels
+            self.contentMode = contentMode
+            self.createdAt = createdAt
+        }
+            
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
