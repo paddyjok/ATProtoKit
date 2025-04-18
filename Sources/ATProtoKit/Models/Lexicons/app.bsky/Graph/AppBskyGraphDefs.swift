@@ -161,8 +161,8 @@ extension AppBskyLexicon.Graph {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
-            let decodedType = try container.decode(String.self, forKey: .type)
-            if decodedType != type {
+            let decodedType = try container.decodeIfPresent(String.self, forKey: .type)
+            if let decodedType, decodedType != type {
                 throw DecodingError.typeMismatch(
                     ListViewDefinition.self,
                     .init(codingPath: [CodingKeys.type],
