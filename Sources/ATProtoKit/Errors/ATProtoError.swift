@@ -96,6 +96,16 @@ extension ATProtoBluesky {
         /// - Parameter message: The message of the error.
         case recordNotFound(message: String)
 
+        /// The url could not be parsed.
+        ///
+        /// - Parameter message: The message of the error.
+        case invalidURLText(message: String)
+
+        /// The listrecord could not be found.
+        ///
+        /// - Parameter message: The message of the error.
+        case listNotFound(message: String)
+
         /// The reply reference could not be validated.
         ///
         /// - Parameter message: The message of the error.

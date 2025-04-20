@@ -47,7 +47,7 @@ extension AppBskyLexicon.Feed {
         /// - Note: Only JPEGs and PNGs are accepted.
         ///
         /// - Important: Current maximum file size 1,000,000 bytes (1 MB).
-        public let avatarImageBlob: ComAtprotoLexicon.Repository.BlobContainer??
+        public let avatarImageBlob: ComAtprotoLexicon.Repository.BlobContainer?
 
         /// Indicates whether the feed generator can accept interactions.
         ///
@@ -64,7 +64,7 @@ extension AppBskyLexicon.Feed {
         /// The date and time the feed was created.
         public let createdAt: Date
 
-        public init(feedDID: String, displayName: String, description: String?, descriptionFacets:  [AppBskyLexicon.RichText.Facet]?, avatarImageBlob: ComAtprotoLexicon.Repository.BlobContainer??, canAcceptInteractions: Bool?, labels: ATUnion.GeneratorLabelsUnion?, contentMode: ContentMode?, createdAt: Date) {
+        public init(feedDID: String, displayName: String, description: String?, descriptionFacets:  [AppBskyLexicon.RichText.Facet]?, avatarImageBlob: ComAtprotoLexicon.Repository.BlobContainer?, canAcceptInteractions: Bool?, labels: ATUnion.GeneratorLabelsUnion?, contentMode: ContentMode?, createdAt: Date) {
             self.feedDID = feedDID
             self.displayName = displayName
             self.description = description
@@ -83,7 +83,7 @@ extension AppBskyLexicon.Feed {
             self.displayName = try container.decode(String.self, forKey: .displayName)
             self.description = try container.decodeIfPresent(String.self, forKey: .description)
             self.descriptionFacets = try container.decodeIfPresent([AppBskyLexicon.RichText.Facet].self, forKey: .descriptionFacets)
-            self.avatarImageBlob = try container.decodeIfPresent(ComAtprotoLexicon.Repository.BlobContainer?.self, forKey: .avatarImageBlob)
+            self.avatarImageBlob = try container.decodeIfPresent(ComAtprotoLexicon.Repository.BlobContainer.self, forKey: .avatarImageBlob)
             self.canAcceptInteractions = try container.decodeIfPresent(Bool.self, forKey: .canAcceptInteractions)
             self.labels = try container.decodeIfPresent(ATUnion.GeneratorLabelsUnion.self, forKey: .labels)
             self.contentMode = try container.decodeIfPresent(ContentMode.self, forKey: .contentMode)
