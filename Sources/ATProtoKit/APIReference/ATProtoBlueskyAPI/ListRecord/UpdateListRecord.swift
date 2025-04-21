@@ -64,7 +64,7 @@ extension ATProtoBluesky {
             let blobContainer = try await ATProtoKit(canUseBlueskyRecords: false).uploadBlob(
                 pdsURL: pdsURL,
                 accessToken: session.accessToken,
-                filename: "listavatar",
+                filename: "listavatar.jpeg",
                 imageData: avatarBytes
             )
             
