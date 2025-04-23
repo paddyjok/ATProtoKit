@@ -36,10 +36,14 @@ extension ATProtoKit {
         cursor: String? = nil,
         isArrayReverse: Bool? = nil
     ) async throws -> ComAtprotoLexicon.Repository.ListRecordsOutput {
-        guard let requestURL = URL(string: "\(self.pdsURL)/xrpc/com.atproto.repo.listRecords") else {
+        guard let session else {
+            throw ATRequestPrepareError.missingActiveSession
+        }
+        
+        guard let requestURL = URL(string: "\(session.serviceEndpoint.absoluteString)/xrpc/com.atproto.repo.listRecords") else {
             throw ATRequestPrepareError.invalidRequestURL
         }
-
+        
         var queryItems = [(String, String)]()
 
         queryItems.append(("repo", repository))
