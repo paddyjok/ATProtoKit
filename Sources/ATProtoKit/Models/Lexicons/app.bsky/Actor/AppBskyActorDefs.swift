@@ -541,6 +541,22 @@ extension AppBskyLexicon.Actor {
             try container.encode(self.isValid, forKey: .isValid)
             try container.encode(self.createdAt, forKey: .createdAt)
         }
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.issuer = try container.decode(String.self, forKey: .issuer)
+            self.uri = try container.decode(String.self, forKey: .uri)
+            self.isValid = try container.decode(Bool.self, forKey: .isValid)
+            self.createdAt = try container.decodeDate(forKey: .createdAt)
+        }
+        
+        public enum CodingKeys: CodingKey {
+            case issuer
+            case uri
+            case isValid
+            case createdAt
+        }
+        
     }
     
     /// A definition model for preferences.
