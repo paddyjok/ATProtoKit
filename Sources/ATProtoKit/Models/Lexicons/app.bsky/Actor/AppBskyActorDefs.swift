@@ -43,6 +43,8 @@ extension AppBskyLexicon.Actor {
         /// The date and time the profile was created. Optional.
         public let createdAt: Date?
 
+        public let verification: VerificationStateDefinition?
+        
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -54,6 +56,7 @@ extension AppBskyLexicon.Actor {
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
             self.createdAt = try container.decodeDateIfPresent(forKey: .createdAt)
+            self.verification = try container.decodeIfPresent(AppBskyLexicon.Actor.VerificationStateDefinition.self, forKey: .verification)
         }
 
         @_documentation(visibility: private)
@@ -68,6 +71,7 @@ extension AppBskyLexicon.Actor {
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
             try container.encodeDateIfPresent(self.createdAt, forKey: .createdAt)
+            try container.encodeIfPresent(self.verification, forKey: .verification)
         }
 
         enum CodingKeys: String, CodingKey {
@@ -79,6 +83,7 @@ extension AppBskyLexicon.Actor {
             case viewer
             case labels
             case createdAt
+            case verification
         }
     }
 
@@ -123,6 +128,8 @@ extension AppBskyLexicon.Actor {
 
         /// An array of labels created by the user. Optional.
         public let labels: [ComAtprotoLexicon.Label.LabelDefinition]?
+        
+        public let verification: VerificationStateDefinition?
 
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -137,6 +144,7 @@ extension AppBskyLexicon.Actor {
             self.createdAt = try container.decodeDateIfPresent(forKey: .createdAt)
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
+            self.verification = try container.decodeIfPresent(AppBskyLexicon.Actor.VerificationStateDefinition.self, forKey: .verification)
         }
 
         @_documentation(visibility: private)
@@ -153,6 +161,7 @@ extension AppBskyLexicon.Actor {
             try container.encodeDateIfPresent(self.createdAt, forKey: .createdAt)
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
+            try container.encodeIfPresent(self.verification, forKey: .verification)
         }
         
         enum CodingKeys: String, CodingKey {
@@ -166,6 +175,7 @@ extension AppBskyLexicon.Actor {
             case createdAt
             case viewer
             case labels
+            case verification
         }
     }
 
@@ -228,12 +238,14 @@ extension AppBskyLexicon.Actor {
 
         /// A post record that's pinned to the profile. Optional.
         public let pinnedPost: ComAtprotoLexicon.Repository.StrongReference?
+        
+        public let verification: VerificationStateDefinition?
 
         public init(actorDID: String, actorHandle: String, displayName: String? = nil, description: String? = nil, avatarImageURL: URL? = nil,
                     bannerImageURL: URL? = nil, followerCount: Int? = nil, followCount: Int? = nil, postCount: Int? = nil,
                     associated: ProfileAssociatedDefinition?, joinedViaStarterPack: AppBskyLexicon.Graph.StarterPackViewBasicDefinition?, indexedAt: Date?,
                     createdAt: Date?, viewer: ViewerStateDefinition? = nil, labels: [ComAtprotoLexicon.Label.LabelDefinition]? = nil,
-                    pinnedPost: ComAtprotoLexicon.Repository.StrongReference?) {
+                    pinnedPost: ComAtprotoLexicon.Repository.StrongReference?, verification: VerificationStateDefinition? = nil) {
             self.actorDID = actorDID
             self.actorHandle = actorHandle
             self.displayName = displayName
@@ -250,6 +262,7 @@ extension AppBskyLexicon.Actor {
             self.viewer = viewer
             self.labels = labels
             self.pinnedPost = pinnedPost
+            self.verification = verification
         }
 
         public init(from decoder: any Decoder) throws {
@@ -271,6 +284,7 @@ extension AppBskyLexicon.Actor {
             self.viewer = try container.decodeIfPresent(AppBskyLexicon.Actor.ViewerStateDefinition.self, forKey: .viewer)
             self.labels = try container.decodeIfPresent([ComAtprotoLexicon.Label.LabelDefinition].self, forKey: .labels)
             self.pinnedPost = try container.decodeIfPresent(ComAtprotoLexicon.Repository.StrongReference.self, forKey: .pinnedPost)
+            self.verification = try container.decodeIfPresent(AppBskyLexicon.Actor.VerificationStateDefinition.self, forKey: .verification)
         }
 
         @_documentation(visibility: private)
@@ -293,6 +307,7 @@ extension AppBskyLexicon.Actor {
             try container.encodeIfPresent(self.viewer, forKey: .viewer)
             try container.encodeIfPresent(self.labels, forKey: .labels)
             try container.encodeIfPresent(self.pinnedPost, forKey: .pinnedPost)
+            try container.encodeIfPresent(self.verification, forKey: .verification)
         }
         
         enum CodingKeys: String, CodingKey {
@@ -312,6 +327,7 @@ extension AppBskyLexicon.Actor {
             case viewer
             case labels
             case pinnedPost
+            case verification
         }
     }
 
@@ -452,6 +468,66 @@ extension AppBskyLexicon.Actor {
         }
     }
 
+    /// A definition model for verification state.
+    ///
+    /// - Note: According to the AT Protocol specifications: "Represents the verification information about the user this object
+    /// is attached to."
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct VerificationStateDefinition: Sendable, Codable, Equatable, Hashable {
+
+        /// All verifications issued by trusted verifiers on behalf of this user. Verifications by untrusted verifiers are not included.
+        ///
+        public let verifications: [VerificationViewDefinfition]
+
+        /// The user's status as a verified account.
+        public let verifiedStatus: String
+
+        /// The user's status as a trusted verifier.
+        public let trustedVerifierStatus: String
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            try container.encode(self.verifications, forKey: .verifications)
+            try container.encode(self.verifiedStatus, forKey: .verifiedStatus)
+            try container.encode(self.trustedVerifierStatus, forKey: .trustedVerifierStatus)
+        }
+    }
+    
+    /// A definition model for verification view.
+    ///
+    /// - Note: According to the AT Protocol specifications: "An individual verification for an associated subject.
+    ///
+    /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
+    ///
+    /// [github]: https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/actor/defs.json
+    public struct VerificationViewDefinfition: Sendable, Codable, Equatable, Hashable {
+
+        /// The user who issued this verification.
+        public let issuer: String
+
+        /// The AT-URI of the verification record.
+        public let uri: String
+
+        /// True if the verification passes validation, otherwise false.
+        public let isValid: Bool
+
+        /// Timestamp when the verification was created.
+        public let createdAt: Date
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            try container.encode(self.issuer, forKey: .issuer)
+            try container.encode(self.uri, forKey: .uri)
+            try container.encode(self.isValid, forKey: .isValid)
+            try container.encode(self.createdAt, forKey: .createdAt)
+        }
+    }
+    
     /// A definition model for preferences.
     ///
     /// - SeeAlso: This is based on the [`app.bsky.actor.defs`][github] lexicon.
