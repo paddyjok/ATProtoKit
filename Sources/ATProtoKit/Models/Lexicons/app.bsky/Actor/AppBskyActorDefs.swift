@@ -495,6 +495,21 @@ extension AppBskyLexicon.Actor {
             try container.encode(self.verifiedStatus, forKey: .verifiedStatus)
             try container.encode(self.trustedVerifierStatus, forKey: .trustedVerifierStatus)
         }
+        
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.verifications = try container.decode([VerificationViewDefinfition].self, forKey: .verifications)
+            self.verifiedStatus = try container.decode(String.self, forKey: .verifiedStatus)
+            self.trustedVerifierStatus = try container.decode(String.self, forKey: .trustedVerifierStatus)
+        }
+
+        public enum CodingKeys: CodingKey {
+            case verifications
+            case verifiedStatus
+            case trustedVerifierStatus
+        }
+
     }
     
     /// A definition model for verification view.
