@@ -13,8 +13,8 @@ extension ATProtoBluesky {
     ///
     /// This can be used instead of creating your own method if you wish not to do so.
     ///
-    /// ## Creating a Post
-    /// After you authenticate into Bluesky, you can create a post by using the `text` field:
+    /// # Creating a Post
+    /// After you authenticate into Bluesky, you can create a post by using the `text` argument:
     /// ```swift
     /// do {
     ///     let postResult = try await atProtoBluesky.createPostRecord(
@@ -68,11 +68,11 @@ extension ATProtoBluesky {
     /// - Note: `startPostion` and `endPostion` must be UTF-8 values.
     ///
     ///
-    /// ## Adding Embedded Content
+    /// # Adding Embedded Content
     /// You can embed various kinds of content in your post, from media to external links,
     /// to other records.
     ///
-    /// ### Images
+    /// ## Images
     /// Use ``ATProtoTools/ImageQuery`` to add details to the image, such as
     /// alt text, then attach it to the post record.
     ///
@@ -81,7 +81,7 @@ extension ATProtoBluesky {
     ///     let image = ATProtoTools.ImageQuery(
     ///         imageData: Data(contentsOf: "/path/to/file/cat.jpg"),
     ///         fileName: "cat.jpg",
-    ///         altText: "A cat looking annoyed, waring a hat."
+    ///         altText: "A cat looking annoyed, wearing a hat."
     ///     )
     ///
     ///     let postResult = try await atProtoBluesky.createPostRecord(
@@ -99,7 +99,7 @@ extension ATProtoBluesky {
     ///
     /// Up to four images can be attached to a post. All images need to be a .jpg format.
     ///
-    /// ### Videos
+    /// ## Videos
     /// Similar to images, you can add videos to a post.
     ///
     /// ```swift
@@ -121,7 +121,7 @@ extension ATProtoBluesky {
     /// You can upload up to 25 videos per day and the 25 videos can't exceed a total of 500 MB
     /// for the day.
     ///
-    /// ### External Links
+    /// ## External Links
     /// You can attach a website card to the post.
     ///
     /// ```swift
@@ -159,7 +159,7 @@ extension ATProtoBluesky {
     /// If there are any links in the post's text, the method will not convert it into a
     /// website card; you will need to manually achieve this.
     ///
-    /// ## Creating a Quote Post
+    /// # Creating a Quote Post
     /// Quote posts are also embeds: you simply need to embed the record's strong reference to it.
     ///
     /// ```swift
@@ -180,7 +180,7 @@ extension ATProtoBluesky {
     /// Only one record can be embedded. This isn't limited to post records, though: you can embed
     /// any Bluesky-related record that you wish.
     ///
-    /// ## Creating a Reply
+    /// # Creating a Reply
     /// To create a reply, pass the reply reference of the post's reply reference to the post record.
     ///
     /// ```swift
@@ -265,7 +265,7 @@ extension ATProtoBluesky {
         shouldValidate: Bool? = true,
         swapCommit: String? = nil
     ) async throws -> ComAtprotoLexicon.Repository.StrongReference {
-        guard let session else {
+        guard let session = try await atProtoKitInstance.getUserSession() else {
             throw ATRequestPrepareError.missingActiveSession
         }
 
@@ -273,10 +273,7 @@ extension ATProtoBluesky {
             throw ATRequestPrepareError.invalidPDS
         }
 
-        // Truncate the number of characters to 300.
-        let postText = text.truncated(toLength: 300)
-
-        var facets = await ATFacetParser.parseFacets(from: postText, pdsURL: session.pdsURL ?? "https://bsky.social")
+        var facets = await ATFacetParser.parseFacets(from: text, pdsURL: session.pdsURL ?? "https://bsky.social")
         if let inlineFacets {
             for (url, start, end) in inlineFacets {
                 do {
@@ -287,6 +284,33 @@ extension ATProtoBluesky {
                 }
             }
         }
+        
+        // Replace hyperlinks in text and update their facet ranges
+        let (resolvedText, updatedLinkFacets) = ATFacetParser.truncateAndReplaceLinks(in: text)
+        
+        // If we have any new URLs that have been updated, modify their facets to their new size
+        for (url, start, end) in updatedLinkFacets {
+            do {
+                let updatedFacet = try await ATFacetParser.createInlineLink(url: url, start: start, end: end)
+
+                // Remove any existing link facet with the same URL
+                facets.removeAll {
+                    $0.features.contains(where: {
+                        if case .link(let linkFeature) = $0 {
+                            return linkFeature.uri == url.absoluteString
+                        }
+                        return false
+                    })
+                }
+
+                facets.append(updatedFacet)
+            } catch {
+                print("Failed to create updated inline link facet: \(error)")
+            }
+        }
+        
+        // Truncate the number of characters to 300.
+        let postText = resolvedText.truncated(toLength: 300)
 
         // Replies
         // Validate the reply reference if provided.
@@ -316,39 +340,43 @@ extension ATProtoBluesky {
 
         if let embedUnion = embed {
             do {
-                switch embedUnion {
-                    case .images(let images):
-                        resolvedEmbed = try await uploadImages(
-                            images,
-                            pdsURL: sessionURL,
-                            accessToken: session.accessToken
-                        )
-                    case .external(let url, let title, let description, let thumbnailImageURL):
-                        resolvedEmbed = await buildExternalEmbed(
-                            from: url,
-                            title: title,
-                            description: description,
-                            thumbnailImageURL: thumbnailImageURL,
-                            session: session
-                        )
-                    case .record(let record):
-                        resolvedEmbed = try await addQuotePostToEmbed(record)
-                    case .recordWithMedia(let record, let media):
-                        let recordWithMediaDefinition = AppBskyLexicon.Embed.RecordWithMediaDefinition(
-                            record: record,
-                            media: media
-                        )
+                if let keychain = sessionConfiguration?.keychainProtocol {
+                    let accessToken = try await keychain.retrieveAccessToken()
 
-                        resolvedEmbed = .recordWithMedia(recordWithMediaDefinition)
-                    case .video(let video, let captions, let altText, let aspectRatio):
-                        resolvedEmbed = try await buildVideo(
-                            video,
-                            with: captions,
-                            altText: altText,
-                            aspectRatio: aspectRatio,
-                            pdsURL: sessionURL,
-                            accessToken: session.accessToken
-                        )
+                    switch embedUnion {
+                        case .images(let images):
+                            resolvedEmbed = try await uploadImages(
+                                images,
+                                pdsURL: sessionURL,
+                                accessToken: accessToken
+                            )
+                        case .external(let url, let title, let description, let thumbnailImageURL):
+                            resolvedEmbed = await buildExternalEmbed(
+                                from: url,
+                                title: title,
+                                description: description,
+                                thumbnailImageURL: thumbnailImageURL,
+                                session: session
+                            )
+                        case .record(let record):
+                            resolvedEmbed = try await addQuotePostToEmbed(record)
+                        case .recordWithMedia(let record, let media):
+                            let recordWithMediaDefinition = AppBskyLexicon.Embed.RecordWithMediaDefinition(
+                                record: record,
+                                media: media
+                            )
+
+                            resolvedEmbed = .recordWithMedia(recordWithMediaDefinition)
+                        case .video(let video, let captions, let altText, let aspectRatio):
+                            resolvedEmbed = try await buildVideo(
+                                video,
+                                with: captions,
+                                altText: altText,
+                                aspectRatio: aspectRatio,
+                                pdsURL: sessionURL,
+                                accessToken: accessToken
+                            )
+                    }
                 }
             } catch {
                 throw error
@@ -633,15 +661,22 @@ extension ATProtoBluesky {
         // Optional upload of the thumbnail image if it exists.
         var thumbnailImage: ComAtprotoLexicon.Repository.UploadBlobOutput? = nil
 
-        if let pdsURL = session.pdsURL, let imageData = image {
-            thumbnailImage = try? await ATProtoKit(canUseBlueskyRecords: false).uploadBlob(
-                pdsURL: pdsURL,
-                accessToken: session.accessToken,
-                filename: "\(ATProtoTools().generateRandomString())_thumbnail.jpg",
-                imageData: imageData
-            ).blob
-
-        } else {
+        // Grab the access token.
+        do {
+            let keychain = sessionConfiguration?.keychainProtocol
+            if let accessToken = try? await keychain?.retrieveAccessToken() {
+                if let pdsURL = session.pdsURL, let imageData = image {
+                    thumbnailImage = try await ATProtoKit(canUseBlueskyRecords: false).uploadBlob(
+                        pdsURL: pdsURL,
+                        accessToken: accessToken,
+                        filename: "\(ATProtoTools().generateRandomString())_thumbnail.jpg",
+                        imageData: imageData
+                    ).blob
+                } else {
+                    thumbnailImage = nil
+                }
+            }
+        } catch {
             thumbnailImage = nil
         }
 
