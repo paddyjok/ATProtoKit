@@ -772,6 +772,10 @@ extension AppBskyLexicon.Actor {
         /// An array of saved feed generators.
         public let items: [SavedFeed]
 
+        public init(items: [SavedFeed]) {
+            self.items = items
+        }
+        
         enum CodingKeys: String, CodingKey {
             case type = "$type"
             case items
